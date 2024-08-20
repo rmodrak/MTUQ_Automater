@@ -1,76 +1,73 @@
-#!/usr/bin/env python
 
-import os
 import re
-import shutil
-import sys
-import yaml
 
-from os.path import abspath, isdir, exists, join
+from mtuq_automater.pysep import parse_event
+from mtuq_automater.utils import read_yaml
 
 
-def read_pysep(input_file, output_dir='.'):
+
+
+def build_templates_list(input_file, verbose=True):
+    # read user-supplied templates if given
     try:
-         dict = read_yaml(input_file)
+        user_templates = read_yaml(input_file)['automater']['templates']
     except:
-        raise Exception('Badly formatted YAML file: %s' % input_file)
-     
-    if 'event_tag' not in dict:
-        raise ValueError('Missing from PySEP file: event_tag')
+       user_templates = None
 
-    if 'origin_time' not in dict:
-        raise ValueError('Missing from PySEP file: origin_time')
+    if user_templates:
+        return user_templates
 
-    if 'event_latitude' not in dict:
-        raise ValueError('Missing from PySEP file: event_latitude')
-
-    if 'event_longitude' not in dict:
-        raise ValueError('Missing from PySEP file: event_longitude')
-
-    if 'event_depth_km' not in dict:
-        raise ValueError('Missing from PySEP file: event_depth_km')
-
-    if 'data_path' not in dict:
-        dict['path_data'] = _abspath(output_dir, 'SAC/*.BH[ZRT].sac')
-
-    if 'weight_path' not in dict:
-        dict['path_weights'] = _abspath(output_dir, 'weights.dat')
-
-    return dict
+    else:
+        # eventually, we will add various regionalization schemes
+        raise NotImplementedError
 
 
-def read_yaml(filename):
-    with open(filename) as stream:
-        dict = yaml.safe_load(stream)
-    return dict
+def generate_script(filename, paths, event):
+        # to generate event-specific MTUQ scripts, we apply a regular expression
+        # substitution every line in the following file
+        with open(filename, "r") as file:
+            lines = file.readlines()
+
+        # the following gets applied to every line:
+        #   value = format % value
+        #   re.sub(pattern+'.*', pattern+value, line)
+
+        tuples = [
+            # pattern           value              format
+            ['event_id=    ',   event.id,          '\'%s\''],
+            ['path_data=    ',  paths.data,        '\'%s\''],
+            ['path_weights= ',  paths.weights,     '\'%s\''],
+            ['\'time\':',       event.origin_time_str, '\'%s\''],
+            ['\'latitude\':',   event.latitude,    '%f,'],
+            ['\'longitude\':',  event.longitude,   '%f,'],
+            ['\'depth_in_m\':', event.depth_in_m,  '%f,'],
+            ['magnitude=',      event.magnitude,   '%f'],
+            #['magnitudes=',    event.magnitude']],
+            ]
+
+        for pattern, value, fmt in tuples:
+            compiled = re.compile('.*'+pattern+'.*')
+
+            for _i, line in enumerate(lines):
+                if compiled.match(line):
+                    try:
+                        string = fmt % value
+                    except:
+                        string = fmt % float(value)
+                    lines[_i] = re.sub(pattern+'.*', pattern+string, line)
+
+                    break
+
+        with open(filename, "w") as file:
+            file.writelines(lines)
 
 
-def is_url(path_or_url):
-    try:
-        # python2
-        from urlparse import urlparse
-    except ModuleNotFoundError:
-        # python3
-        from urllib.parse import urlparse
-
-    try:
-        result = urlparse(path_or_url)
-        return all([result.scheme, result.netloc])
-    except AttributeError:
-        return False
-
-    # More robust, but requires django
-    #from django.core.validators import URLValidator
-    #from django.core.exceptions import ValidationError
-    #try:
-    #    URLValidator()(path_or_url)
-    #    return True
-    #except ValidationError:
-    #    return False
+def search_sites(lat, lon):
+    # not implemented yet
+    return
 
 
-def _abspath(base, *args):
-    return join(abspath(base), *args)
-
-
+def search_regions(lat, lon):
+    # not implemented yet
+    return
 

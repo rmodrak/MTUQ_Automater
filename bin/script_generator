@@ -1,64 +1,119 @@
 #!/usr/bin/env python
 
+import os
 import re
 import shutil
 import sys
 
-from os.path import isdir, exists, join
-from script_generator import read_pysep, regex_patterns, read_yaml, is_url
+from os.path import abspath, basename, isdir, exists, join
+from mtuq_automater import build_templates_list, generate_script
+from mtuq_automater.pysep import parse_event, parse_paths
+from mtuq_automater.utils import is_url, read_yaml
 
 
-
-TEMPLATES = [
-    # can be either local paths or URLs
-    "templates/FullMomentTensor.SurfaceWaves.py"
-    ]
 
 
 if __name__=='__main__':
 
     #
-    #   Generates ready-to-go MTUQ scripts using event information
-    #   from PySEP input file
+    # OVERVIEW
+    #
+    #   Generates MTUQ scripts by substituing event-specific values into
+    #   region-specific templates
     #
 
     #
     # USAGE
+    #
+    #   Event-specific values, including origin time and location, are simply 
+    #   read from a PySEP file. These values are then substituted into one 
+    #   or more region-specific templates. (The way in which the templates are
+    #   determined is somewhat involved, as explained in the detailed notes)
+    #
     #   Imagine we have already run PySEP for a given event, but have yet
-    #   to run MTUQ.
+    #   to run MTUQ. Suppose that 
     #
-    #   Suppose that our PySEP input and output are as follows:
+    #   - PYSEP_FILE is the PySEP input file
+    #   - PYSEP_DIR is the PySEP download directory containing SAC waveforms
+    #     and weight files
     #
-    #   - INPUT_FILE is the PySEP input file
+    #   The script generator can then be invoked as follows:
     #
-    #   - OUTPUT_DIR is the PySEP output directory 
-    #     (contains SAC waveforms, weight files, etc.)
+    #     >> script_generator  PYSEP_FILE  PYSEP_DIR
+
+
     #
-    #   MTUQ scripts for the given event can then be generated as follows:
+    # DETAILED NOTES
     #
-    #     script_generator <INPUT_FILE> <OUTPUT_DIR>
+    #  A list of user-supplied templates can be specified in the PySEP input
+    #  file as follows:
+    #
+    # >> tail pysep_file.yaml
+    # automater:
+    #   templates:
+    #      - path_or_url_1
+    #      - path_or_url_2
+    #
+    #  If no user-supplied templates are specified, the script generator 
+    #  instead attempts to construct a list of templates based on
+    #  
+    #    - proximity of the event to known sites of interest
+    #      (see templates/sites)
+    #    - Flinn-Engdahl regionalization (see templates/flinn_engdahl)
+    #
+    #  If the event occurs away from any currently implemented sites or regions,
+    #  the script generator falls back to a list of 1D reference templates 
+    #  (see templates/ak135f)
+    #
     #
 
+    args = sys.argv[1:]
+
+    if len(args) < 2:
+        raise Exception('Too few input arguments')
+
+    elif len(args) > 3:
+        raise Exception('Too many input arguments')
+
+    if len(args) == 2:
+        input_file = sys.argv[1]
+        assert exists(input_file)
+
+        input_dir = sys.argv[2]
+        assert isdir(input_dir)
+
+        output_dir = os.getcwd()
+
+    elif len(args) == 3:
+        input_file = sys.argv[1]
+        assert exists(input_file)
+
+        input_dir = sys.argv[2]
+        assert isdir(input_dir)
+
+        output_dir = sys.argv[3]
+        assert isdir(output_dir)
 
 
-    input_file = sys.argv[1]
-    assert exists(input_file)
+    #
+    # event time and location from PySEP input file
+    #
+    event = parse_event(read_yaml(input_file))
 
-    output_dir = sys.argv[2]
-    assert isdir(output_dir)
+    #
+    # paths relative to PySEP download directory
+    #
+    paths = parse_paths(input_dir)
 
+    #
+    # the main work starts now
+    #
+    templates = build_templates_list(input_file)
 
-    # read event information from input_file
-    event = read_pysep(input_file, output_dir)
-
-
-    # determine template based on Flinn-Engdahl region
-
-
-    # write event-specific MTUQ scripts to output_dir
-    for template in TEMPLATES:
-
-        output_file = event['event_tag']+'_'+template.split('/')[-1]
+    for template in templates:
+        # naming scheme
+        output_file = '-'.join((event['id'], basename(template)))
+        fullname = join(output_dir, output_file)
 
         print('')
         print('template:    ', template)
@@ -66,55 +121,9 @@ if __name__=='__main__':
         print('')
 
         if is_url(template):
-            urlopen_with_retry(template, output_file)
+            urlopen_with_retry(template, fullname)
         else:
-            assert exists(template)
-            shutil.copy(template, output_file)
+            shutil.copy(template, fullname)
 
-        with open(output_file, "r") as file:
-            lines = file.readlines()
-
-        #
-        # apply region-specific defaults
-        #
-        tuples = [
-            # pattern, format, value
-            ['path_greens=    ',  '\'%s\'', '/sa/uq/axisem-datbases/mdj2_ak135f_2s'],
-            ]
-
-        for pattern, fmt, value in tuples:
-            compiled = re.compile('.*'+pattern+'.*')
-
-            for _i, line in enumerate(lines):
-                if compiled.match(line):
-                    # apply substitution rule
-                    try:
-                        string = fmt % value
-                    except:
-                        string = fmt % float(value)
-                    lines[_i] = re.sub(pattern+'.*', pattern+string, line)
-
-                    break
-
-        #
-        # apply event-specific changes from PySEP file
-        #
-        tuples = regex_patterns(event)
-        for pattern, fmt, value in tuples:
-            compiled = re.compile('.*'+pattern+'.*')
-
-            for _i, line in enumerate(lines):
-                if compiled.match(line):
-                    # apply substitution rule
-                    try:
-                        string = fmt % value
-                    except:
-                        string = fmt % float(value)
-                    lines[_i] = re.sub(pattern+'.*', pattern+string, line)
-
-                    break
-
-        with open(output_file, "w") as file:
-            file.writelines(lines)
-
+        generate_script(fullname, paths, event)
 
