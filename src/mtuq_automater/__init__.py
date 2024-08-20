@@ -10,7 +10,7 @@ from mtuq_automater.utils import read_yaml
 def build_templates_list(input_file, verbose=True):
     # read user-supplied templates if given
     try:
-        user_templates = read_yaml(input_file)['automater']['templates']
+        user_templates = read_yaml(input_file)['mtuq_automater']['templates']
     except:
        user_templates = None
 

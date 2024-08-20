@@ -6,9 +6,10 @@ import shutil
 import sys
 
 from os.path import abspath, basename, isdir, exists, join
+from shutil import copy
 from mtuq_automater import build_templates_list, generate_script
 from mtuq_automater.pysep import parse_event, parse_paths
-from mtuq_automater.utils import is_url, read_yaml
+from mtuq_automater.utils import is_url, read_yaml, url_copy
 
 
 
@@ -18,7 +19,7 @@ if __name__=='__main__':
     #
     # OVERVIEW
     #
-    #   Generates MTUQ scripts by substituing event-specific values into
+    #   Generates MTUQ scripts by substituting event-specific values into
     #   region-specific templates
     #
 
@@ -40,7 +41,7 @@ if __name__=='__main__':
     #   The script generator can then be invoked as follows:
     #
     #     >> script_generator  PYSEP_FILE  PYSEP_DIR
-
+    #
 
     #
     # DETAILED NOTES
@@ -48,23 +49,21 @@ if __name__=='__main__':
     #  A list of user-supplied templates can be specified in the PySEP input
     #  file as follows:
     #
-    # >> tail pysep_file.yaml
-    # automater:
+    # mtuq_automater:
     #   templates:
-    #      - path_or_url_1
-    #      - path_or_url_2
+    #   - path_or_url_1
+    #   - path_or_url_2
     #
     #  If no user-supplied templates are specified, the script generator 
-    #  instead attempts to construct a list of templates based on
+    #  attempts to construct a list of templates based on
     #  
     #    - proximity of the event to known sites of interest
     #      (see templates/sites)
     #    - Flinn-Engdahl regionalization (see templates/flinn_engdahl)
     #
     #  If the event occurs away from any currently implemented sites or regions,
-    #  the script generator falls back to a list of 1D reference templates 
+    #  the script generator falls back to 1D reference models
     #  (see templates/ak135f)
-    #
     #
 
     args = sys.argv[1:]
@@ -121,9 +120,9 @@ if __name__=='__main__':
         print('')
 
         if is_url(template):
-            urlopen_with_retry(template, fullname)
+            url_copy(template, fullname)
         else:
-            shutil.copy(template, fullname)
+            copy(template, fullname)
 
         generate_script(fullname, paths, event)
 

@@ -6,7 +6,7 @@ Then, simply invoke the scripts in order from within the examples/ directory:
 
 >> 1_download_waveforms.bash
 
->> 2_dowload_greens.bash
+>> 2_download_greens.bash
 
 >> 3_generate_mtuq_scripts.bash
 

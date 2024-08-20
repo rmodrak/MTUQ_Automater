@@ -28,8 +28,7 @@ function download {
     filetype=$3
     fullname=$1/$2.$3
 
-    mkdir -p "$dirname"
-    curl $urlbase/$fullname --output $dirname.$filetype
+    curl "$urlbase/$fullname" --output "${dirname}.${filetype}"
     }
 
 
@@ -59,10 +58,11 @@ for event in \
 do
     echo $event
 
-    for filetype in tgz yaml
-    do
-        download $event "resample=1Hz,remove_response=True" $filetype
-    done
+    download $event "resample=1Hz,remove_response=True" yaml
+    download $event "resample=1Hz,remove_response=True" tgz
+
+    tar -xzf "${event}.tgz"
+    mv "resample=1Hz,remove_response=True" ${event}
 
     echo
 

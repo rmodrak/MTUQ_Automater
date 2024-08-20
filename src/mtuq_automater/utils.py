@@ -2,6 +2,16 @@
 import obspy
 import yaml
 
+from retry import retry
+
+
+# Python2/3 compatibility
+try:
+    from urllib import URLopener
+except ImportError:
+    from urllib.request import URLopener
+
+
 class AttribDict(obspy.core.util.attribdict.AttribDict):
     pass
 
@@ -34,4 +44,10 @@ def read_yaml(filename):
     with open(filename) as stream:
         pysep_dict = yaml.safe_load(stream)
     return pysep_dict
+
+
+@retry(Exception, tries=4, delay=2, backoff=2)
+def url_copy(url, filename):
+    opener = URLopener()
+    opener.retrieve(url, filename)
 

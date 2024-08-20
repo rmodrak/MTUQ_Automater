@@ -15,18 +15,28 @@ function check_path () {
 check_path
 
 
+wd="$PWD/scripts"
+
+echo
+echo "Current working directory:"
+echo $wd
+echo
+
+mkdir -p $wd
+cd $wd
+ln -s ../templates .
+
+
 for event in \
     "2017-09-03T03-30-01-NORTH_KOREA"\
     "2017-11-15T05-29-32-SOUTH_KOREA"\
 
 do
 
-    input_file="waveforms/${event}.yaml"
-    input_dir="waveforms/${event}"
-    output_dir="$PWD/scripts"
+    input_file="../waveforms/${event}.yaml"
+    input_dir="../waveforms/${event}"
 
-    mkdir -p $output_dir
-    script_generator $input_file $input_dir $output_dir
+    script_generator $input_file $input_dir
 
 done
 
