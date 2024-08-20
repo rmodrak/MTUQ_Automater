@@ -1,16 +1,18 @@
 
-To try out our automated MTUQ workflow, first install MTUQ_Automater 
-following the instructions in INSTALL.txt
+Instructions
 
-Then, simply invoke the scripts in order from within the examples/ directory:
+    To try out our automated MTUQ workflow, first install MTUQ_Automater 
+    following INSTALL.txt
 
->> 1_download_waveforms.bash
+    Then, simply invoke the scripts in order from within the examples/ directory:
 
->> 2_download_greens.bash
+    >> 1_download_waveforms.bash
 
->> 3_generate_scripts.bash
+    >> 2_download_greens.bash
 
->> 4_run_scripts.bash
+    >> 3_generate_scripts.bash
+
+    >> 4_run_scripts.bash
 
 
 
