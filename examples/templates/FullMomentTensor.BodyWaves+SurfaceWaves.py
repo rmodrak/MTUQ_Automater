@@ -24,8 +24,9 @@ if __name__=='__main__':
     #   
 
 
-    path_data=    'SAC/*.[zrt].sac'
-    path_weights= 'weights.dat'
+    path_data=    'waveforms/SAC/*.[zrt].sac'
+    path_greens=  'greens/mdj2'
+    path_weights= 'waveforms/weights.dat'
     event_id=     '20090407201255351'
     model=        'ak135'
 
@@ -139,7 +140,8 @@ if __name__=='__main__':
 
 
         print('Reading Greens functions...\n')
-        greens = download_greens_tensors(stations, origin, model)
+        db = open_db('greens/mdj', format='CPS')
+        greens = db.greens_tensors(stations, origin, model)
 
         print('Processing Greens functions...\n')
         greens.convolve(wavelet)

@@ -34,14 +34,14 @@ def generate_script(filename, paths, event):
 
         tuples = [
             # pattern           value              format
-            ['event_id=    ',   event.id,          '\'%s\''],
-            ['path_data=    ',  paths.data,        '\'%s\''],
-            ['path_weights= ',  paths.weights,     '\'%s\''],
-            ['\'time\':',       event.origin_time_str, '\'%s\''],
-            ['\'latitude\':',   event.latitude,    '%f,'],
-            ['\'longitude\':',  event.longitude,   '%f,'],
-            ['\'depth_in_m\':', event.depth_in_m,  '%f,'],
-            ['magnitude=',      event.magnitude,   '%f'],
+            ['event_id=    ',   event.id,              '\'%s\''],
+            ['path_data=    ',  paths.data,            '\'%s\''],
+            ['path_weights= ',  paths.weights,         '\'%s\''],
+            ['\'latitude\':',   event.latitude,        '%f,'],
+            ['\'longitude\':',  event.longitude,       '%f,'],
+            ['\'depth_in_m\':', event.depth_in_m,      '%f,'],
+            ['magnitude=',      event.magnitude,       '%f'],
+            ['\'time\':',       event.origin_time_str, 'UTCDateTime(\'%s\'')],
             #['magnitudes=',    event.magnitude']],
             ]
 

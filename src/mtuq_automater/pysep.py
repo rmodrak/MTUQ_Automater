@@ -29,7 +29,7 @@ def parse_event(pysep_dict):
     if 'event_depth_km' not in pysep_dict:
         raise ValueError('Missing from PySEP file: event_depth_km')
 
-    event.depth_in_m = pysep_dict['event_depth_km']/1000.
+    event.depth_in_m = 1000.*pysep_dict['event_depth_km']
 
 
     if 'origin_time' not in pysep_dict:
