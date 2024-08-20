@@ -22,8 +22,6 @@ function check_path {
     fi
     }
 
-check_path
-
 
 function download {
     dirname=$1
@@ -41,34 +39,41 @@ function cps_formatted {
     }
 
 
-# if download fails, stop immediately
-set -e
+function main {
+    # if download fails, stop immediately
+    set -e
 
 
-wd="$PWD/greens"
+    wd="$PWD/greens"
 
-echo
-echo "Current working directory:"
-echo $wd
-echo
+    echo
+    echo "Current working directory:"
+    echo $wd
+    echo
 
-mkdir -p $wd
-cd $wd
+    mkdir -p $wd
+    cd $wd
 
 
-echo
-echo "Downloading Greens functions"
-echo
+    echo
+    echo "Downloading Greens functions"
+    echo
 
-dirname='mdj2'
-filename=$(cps_formatted $depth_in_m).tgz
+    dirname='mdj2'
+    filename=$(cps_formatted $depth_in_m).tgz
 
-download $dirname $filename
+    download $dirname $filename
 
-cd $dirname
-tar -xzf $filename
+    cd $dirname
+    tar -xzf $filename
 
-echo
-echo "Success"
-echo
+    echo
+    echo "Success"
+    echo
+
+    }
+
+
+check_path
+main
 

@@ -19,9 +19,6 @@ function check_path {
     fi
     }
 
-check_path
-
-
 function download {
     dirname=$1
     filename=$2
@@ -32,43 +29,49 @@ function download {
     }
 
 
-# if download fails, stop immediately
-set -e
+function main {
+
+    # if download fails, stop immediately
+    set -e
 
 
-wd="$PWD/waveforms"
-
-echo
-echo "Current working directory:"
-echo $wd
-echo
-
-mkdir -p $wd
-cd $wd
-
-
-echo
-echo "Downloading waveforms"
-echo
-
-for event in \
-    "2017-09-03T03-30-01-NORTH_KOREA"\
-    "2017-11-15T05-29-32-SOUTH_KOREA"\
-
-do
-    echo $event
-
-    download $event "resample=1Hz,remove_response=True" yaml
-    download $event "resample=1Hz,remove_response=True" tgz
-
-    tar -xzf "${event}.tgz"
-    mv "resample=1Hz,remove_response=True" ${event}
+    wd="$PWD/waveforms"
 
     echo
+    echo "Current working directory:"
+    echo $wd
+    echo
 
-done
+    mkdir -p $wd
+    cd $wd
 
-echo
-echo "Success"
-echo
 
+    echo
+    echo "Downloading waveforms"
+    echo
+
+    for event in \
+        "2017-09-03T03-30-01-NORTH_KOREA"\
+        "2017-11-15T05-29-32-SOUTH_KOREA"\
+
+    do
+        echo $event
+
+        download $event "resample=1Hz,remove_response=True" yaml
+        download $event "resample=1Hz,remove_response=True" tgz
+
+        tar -xzf "${event}.tgz"
+        mv "resample=1Hz,remove_response=True" ${event}
+
+        echo
+
+    done
+
+    echo
+    echo "Success"
+    echo
+
+    }
+
+check_path
+main
