@@ -41,7 +41,7 @@ def generate_script(filename, paths, event):
             ['\'longitude\':',  event.longitude,       '%f,'],
             ['\'depth_in_m\':', event.depth_in_m,      '%f,'],
             ['magnitude=',      event.magnitude,       '%f'],
-            ['\'time\':',       event.origin_time_str, 'UTCDateTime(\'%s\'')],
+            ['\'time\':',       event.origin_time_str, 'UTCDateTime(\'%s\')'],
             #['magnitudes=',    event.magnitude']],
             ]
 

@@ -24,6 +24,7 @@ echo
 
 mkdir -p $wd
 cd $wd
+rm -rf templates
 ln -s ../templates .
 
 
