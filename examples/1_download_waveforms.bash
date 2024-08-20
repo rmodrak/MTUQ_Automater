@@ -31,8 +31,10 @@ function download {
 
 function main {
 
-    # if download fails, stop immediately
+    # if downloads fail, stop immediately
     set -e
+
+    check_path
 
 
     wd="$PWD/waveforms"
@@ -73,5 +75,4 @@ function main {
 
     }
 
-check_path
 main

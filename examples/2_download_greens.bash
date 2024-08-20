@@ -40,9 +40,11 @@ function cps_formatted {
 
 
 function main {
-    # if download fails, stop immediately
+
+    # if downloads fail, stop immediately
     set -e
 
+    check_path
 
     wd="$PWD/greens"
 
@@ -74,6 +76,5 @@ function main {
     }
 
 
-check_path
 main
 

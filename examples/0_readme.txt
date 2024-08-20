@@ -8,9 +8,9 @@ Then, simply invoke the scripts in order from within the examples/ directory:
 
 >> 2_download_greens.bash
 
->> 3_generate_mtuq_scripts.bash
+>> 3_generate_scripts.bash
 
->> 4_run_mtuq_scripts.bash
+>> 4_run_scripts.bash
 
 
 

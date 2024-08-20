@@ -12,32 +12,36 @@ function check_path () {
     fi
     }
 
-check_path
+function main {
+    check_path
 
 
-wd="$PWD/scripts"
+    wd="$PWD/scripts"
 
-echo
-echo "Current working directory:"
-echo $wd
-echo
+    echo
+    echo "Current working directory:"
+    echo $wd
+    echo
 
-mkdir -p $wd
-cd $wd
-rm -rf templates
-ln -s ../templates .
+    mkdir -p $wd
+    cd $wd
+    rm -rf templates
+    ln -s ../templates .
 
 
-for event in \
-    "2017-09-03T03-30-01-NORTH_KOREA"\
-    "2017-11-15T05-29-32-SOUTH_KOREA"\
+    for event in \
+        "2017-09-03T03-30-01-NORTH_KOREA"\
+        "2017-11-15T05-29-32-SOUTH_KOREA"\
 
-do
+    do
 
-    input_file="../waveforms/${event}.yaml"
-    input_dir="../waveforms/${event}"
+        input_file="../waveforms/${event}.yaml"
+        input_dir="../waveforms/${event}"
 
-    script_generator $input_file $input_dir
+        script_generator $input_file $input_dir
 
-done
+    done
+    }
 
+
+main
