@@ -1,0 +1,39 @@
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    # we find that CPU/memory limits are less often exceeded using this 
+    # specific version of Ubuntu
+    runs-on: ubuntu-20.04
+
+    #runs-on: ubuntu-latest
+
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+#    - name: pip installation
+#    # test pip installation first (much faster than conda)
+#      run: |
+#         pip install --upgrade pip
+#         pip install -e .
+    - name: Run the example
+      run: |
+         cd examples
+         bash ./1_download_waveforms.bash
+         bash ./2_download_greens.bash
+         #bash ./3_generate_scripts.bash
+         #bash ./4_run_scripts.bash
+
+
