@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import re
-import shutil
 import sys
 
 from os.path import isdir, exists
@@ -43,16 +41,17 @@ if __name__=='__main__':
     #
     # DETAILED NOTES
     #
-    #  A list of user-supplied templates can be specified in the PySEP input
+    #  User-supplied templates can be specified in the PySEP input
     #  file as follows:
     #
-    # mtuq_automater:
-    #   templates:
-    #   - path_or_url_1
-    #   - path_or_url_2
+    #  mtuq_automater:
+    #    templates:
+    #    - path_or_url_1
+    #    - path_or_url_2
+    #    ...
     #
-    #  If no user-supplied templates are specified, the script generator 
-    #  attempts to construct a list of templates based on
+    #  If no user-supplied templates are given, the script generator 
+    #  will try to construct a list of templates based on
     #  
     #    - proximity of the event to known sites of interest
     #      (see templates/sites)
@@ -60,7 +59,7 @@ if __name__=='__main__':
     #
     #  If the event occurs away from any currently implemented sites or regions,
     #  the script generator falls back to 1D reference models
-    #  (see templates/ak135f)
+    #  (for example templates/ak135f)
     #
 
     args = sys.argv[1:]

@@ -9,24 +9,48 @@ from mtuq_automater.utils import is_url, read_yaml, url_copy
 
 
 
-def build_templates_list(input_file, verbose=True):
-    #
-    # read user-supplied templates if given
-    #
-    try:
-        user_templates = read_yaml(input_file)['mtuq_automater']['templates']
-    except:
-       user_templates = None
-
-    if user_templates:
-        return user_templates
-
-    else:
-        # eventually, we will add various site and region schemes
-        raise NotImplementedError
-
-
 def generate_script(input_file, input_dir, output_dir):
+    """ Generates MTUQ scripts by substituting event-specific values into
+       region-specific templates
+    
+       Event-specific values, including origin time and location, are simply 
+       read from a PySEP file. These values are then substituted into one 
+       or more region-specific templates. (The way in which the templates are
+       determined is somewhat involved, as explained in the detailed notes)
+    
+       Imagine we have already run PySEP for a given event, but have yet
+       to run MTUQ. Suppose that 
+    
+        - PYSEP_FILE is the PySEP input file
+        - PYSEP_DIR is the PySEP download directory containing SAC waveforms
+          and weight files
+    
+       The script generator can then be invoked as follows:
+    
+        >> script_generator  PYSEP_FILE  PYSEP_DIR
+    
+
+       A user-supplied templates can be specified in the PySEP input file 
+       as follows:
+    
+         mtuq_automater:
+           templates:
+           - path_or_url_1
+           - path_or_url_2
+    
+       If no user-supplied templates are given, the script generator will
+       try to construct a list of templates based on
+      
+       - proximity of the event to known sites of interest
+          (see templates/sites)
+       - Flinn-Engdahl regionalization (see templates/flinn_engdahl)
+    
+       If the event occurs away from any currently implemented sites or regions,
+       the script generator falls back to 1D reference models
+       (for example templates/ak135f)
+    
+    """
+
     #
     # event time and location from PySEP input file
     #
@@ -58,6 +82,23 @@ def generate_script(input_file, input_dir, output_dir):
             copy(template, output)
 
         _overwrite(output, paths, event)
+
+
+def build_templates_list(input_file, verbose=True):
+    #
+    # read user-supplied templates if given
+    #
+    try:
+        user_templates = read_yaml(input_file)['mtuq_automater']['templates']
+    except:
+       user_templates = None
+
+    if user_templates:
+        return user_templates
+
+    else:
+        # eventually, we will add various site and region schemes
+        raise NotImplementedError
 
 
 def _overwrite(filename, paths, event):
