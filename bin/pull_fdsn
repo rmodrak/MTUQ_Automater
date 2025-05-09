@@ -1,0 +1,30 @@
+#!/bin/bash
+
+
+#
+# USAGE
+#   >> pull_fdsn <config_file>
+#
+
+
+if ! command -v pysep 
+then
+    echo "Not found on path: pysep"
+    exit
+fi
+
+if [ ! -e $1 ]
+then
+    echo "File not found: $1"
+    exit
+fi
+
+
+# download
+pysep -c $1 2>&1 >/dev/null
+
+
+# workaround hardcoded directory name
+mv ????-??-??T??????_* ${1%.*}
+
+

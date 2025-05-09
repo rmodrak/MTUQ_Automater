@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# runs MTUQ for multiple events
+
+echo "Not implemented yet"
+exit -1
+
+

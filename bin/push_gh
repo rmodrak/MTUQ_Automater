@@ -1,0 +1,153 @@
+#!/bin/bash
+
+
+function resolve_path () {
+   echo $(readlink -f $*)
+}
+
+
+function remote_exists () {
+   git ls-remote --exit-code $1 > /dev/null 2>&1
+   echo $?
+}
+
+
+function glob () {
+    extension=$1
+    echo $(ls -1 *${extension} 2> /dev/null | wc -l)
+}
+
+
+#
+# Pushes PySEP waveforms to GitHub
+# 
+
+#
+# USAGE:
+#      push_event  DIR [REMOTE] [BRANCH]
+# 
+
+
+if [[ $# -lt 1 ]]
+then
+    echo "Too few input arguments"
+    exit 1
+
+elif [[ $# -eq  1 ]]
+then
+    DIR=$(resolve_path $1)
+    REMOTE="git@github.com:rmodrak/waveforms_fdsn.git"
+    BRANCH=$(basename $DIR)
+
+
+elif [[ $# -eq 2 ]]
+then
+    DIR=$(resolve_path $1)
+    REMOTE=$2
+    BRANCH=$(basename $DIR)
+
+
+elif [[ $# -eq 3 ]]
+then
+    DIR=$(resolve_path $1)
+    REMOTE=$2
+    BRANCH=$3
+
+
+elif [[ $# -gt 3 ]]
+then
+    echo "Too many input arguments"
+    exit 
+fi
+
+
+if [ ! -d $DIR ]
+then
+    echo
+    echo "Directory not found:"
+    echo "$DIR"
+    echo
+    exit
+fi
+
+if [ ! $(remote_exists $REMOTE) ]
+then
+    echo
+    echo "Remote not found:"
+    echo "$REMOTE"
+    echo
+    exit
+fi
+
+
+# resolve absolute path
+DIR=$(resolve_path $DIR)
+
+
+# Prompt for user confirmation
+#
+echo
+echo "directory: $DIR"
+echo "remote:    $REMOTE"
+echo "branch:    $BRANCH"
+echo
+
+read -p "Proceed [yN]? " -n 1 -r
+echo
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    exit
+fi
+
+
+#
+# Check that configuration files (yaml) and waveforms (tgz) exist
+#
+
+cd $DIR
+echo
+echo PWD: $PWD
+echo
+
+if [ $( glob tgz ) == 0 ];
+then
+    echo
+    echo "tgz files not found. Aborting..."
+    echo
+    exit
+fi
+
+if [ $( glob yaml ) == 0 ];
+then
+    echo
+    echo "yaml files not found. Aborting..."
+    echo
+    exit
+fi
+
+
+#
+# Create local git repository
+#
+if [ -d .git ]
+then
+    read -p "Overwrite existing local repository [yN]?" -n 1 -r
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        rm -rf .git
+    fi
+fi
+
+git init -b $BRANCH
+git add *yaml
+git add *tgz
+git commit -m "Added event configuration files (yaml) and waveforms (tgz)"
+
+
+#
+# Force push (if remote branch exists, will ask for user confirmation)
+#
+git remote add origin $REMOTE
+git push -f origin $BRANCH
+

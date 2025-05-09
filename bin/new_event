@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+
+import sys
+
+from mtuq_automater.parsers import event_parser as main
+
+
+
+
+if __name__=='__main__':
+    """  Creates an YAML file with preliminary event information
+
+      Once created, the resulting YAML files can then be passed to other
+      utilities to download waveforms for the given event or to generate
+      event-specific scripts
+
+      Currently, the YAML file uses a schema based on
+          github.com/adjtomo/pysep
+
+
+    USAGE
+      >> new_event <UTC_DATE_TIME> <LAT>  <LON>  <DEPTH_IN_KM>  <MAGNITUDE>
+
+      >> new_event <EVENT_ID>
+    
+    
+    EXAMPLES
+      >> new_event  2017-09-03T03:30:01.000  41.300  129.078  1.  5.42
+      >> new_event  2017-09-03T03:30:01  41.300  129.078  1.  5.42
+      >> new_event  2017-09-03_03:30:01  41.300  129.078  1.  5.42
+      >> new_event  2017,09,03,03,30,01  41.300  129.078  1.  5.42
+      >> new_event  2017-09-03--03-30-01  41.300  129.078  1.  5.42
+
+      >> new_event 20170903033001
+      >> new_event c7a0c09f172abd32e
+
+
+    WARNING
+        The script itself and details of the resulting YAML files are still
+        very much a work in progress
+
+        In particular, details of the key/value schema, including the names of
+        keys and formatting of values, are under development and likely to
+        change
+
+    """
+    
+    args = sys.argv[1:]
+
+    if len(args) == 1:
+        # parse event ID from local database
+        raise NotImplementedError
+
+    elif len(args) == 5:
+        # parse preliminary origin time and location from command line
+        datetime = args[0]
+        latitude = float(args[1])
+        longitude = float(args[2])
+        depth_in_km = float(args[3])
+        magnitude = float(args[4])
+
+    else:
+        raise IOError('Unexpected number of input arguments')
+
+
+    main(datetime, latitude, longitude, depth_in_km, magnitude)
+
+
