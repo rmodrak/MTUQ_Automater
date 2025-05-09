@@ -16,6 +16,16 @@ class AttribDict(obspy.core.util.attribdict.AttribDict):
     pass
 
 
+def flinn_engdahl(lat, lon):
+    from obspy.clients.iris import Client
+
+    _, region = Client().flinnengdahl(lat, lon)
+    region = region.replace(" ", "_")
+    region = region.replace(",", "")
+    #region = region.upper()
+    return region
+
+
 def is_url(path_or_url):
     try:
         # python2
@@ -40,14 +50,9 @@ def is_url(path_or_url):
     #    return False
 
 
-def read_yaml(filename):
-    with open(filename) as stream:
-        pysep_dict = yaml.safe_load(stream)
-    return pysep_dict
-
-
 @retry(Exception, tries=4, delay=2, backoff=2)
 def url_copy(url, filename):
     opener = URLopener()
     opener.retrieve(url, filename)
+
 

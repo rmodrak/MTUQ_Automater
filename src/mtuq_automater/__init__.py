@@ -1,53 +1,36 @@
 
 import re
 
-from os.path import abspath, basename, isdir, exists, join
+from os.path import abspath, basename, dirname, isdir, exists, join
 from shutil import copy
 
 from mtuq_automater.pysep import parse_event, parse_paths
-from mtuq_automater.utils import is_url, read_yaml, url_copy
+from mtuq_automater.utils import is_url, url_copy
+from mtuq_automater.yaml import read_yaml
+
+
+def pysep_dir():
+    try:
+        import pysep
+    except:
+        raise ImportError('PySEP import failed')
+    return  abspath(join(pysep.__path__[0], '..'))
+
+
+def pkg_dir():
+    # directory in which source code exists
+    src_dir = dirname(abspath(__file__))
+
+    # package directory
+    pkg_dir = abspath(join(src_dir, '..', '..'))
+
+    return pkg_dir
 
 
 
-def generate_script(input_file, input_dir, output_dir):
+def mtuq_setup(input_file, input_dir, output_dir):
     """ Generates MTUQ scripts by substituting event-specific values into
        region-specific templates
-    
-       Event-specific values, including origin time and location, are simply 
-       read from a PySEP file. These values are then substituted into one 
-       or more region-specific templates. (The way in which the templates are
-       determined is somewhat involved, as explained in the detailed notes)
-    
-       Imagine we have already run PySEP for a given event, but have yet
-       to run MTUQ. Suppose that 
-    
-        - PYSEP_FILE is the PySEP input file
-        - PYSEP_DIR is the PySEP download directory containing SAC waveforms
-          and weight files
-    
-       The script generator can then be invoked as follows:
-    
-        >> script_generator  PYSEP_FILE  PYSEP_DIR
-    
-
-       A user-supplied templates can be specified in the PySEP input file 
-       as follows:
-    
-         mtuq_automater:
-           templates:
-           - path_or_url_1
-           - path_or_url_2
-    
-       If no user-supplied templates are given, the script generator will
-       try to construct a list of templates based on
-      
-       - proximity of the event to known sites of interest
-          (see templates/sites)
-       - Flinn-Engdahl regionalization (see templates/flinn_engdahl)
-    
-       If the event occurs away from any currently implemented sites or regions,
-       the script generator falls back to 1D reference models
-       (for example templates/ak135f)
     
     """
 
@@ -67,8 +50,10 @@ def generate_script(input_file, input_dir, output_dir):
     templates = build_templates_list(input_file)
 
     for template in templates:
-        # output filename usually reduces to {DATETIME}-{FLINN_ENGDAHL_REGION}-{TEMPLATE_NAME}
-        filename = f'{event['id']}-{basename(template)}'
+        # output filename usually reduces to 
+        #{DATETIME}__{FLINN_ENGDAHL_REGION}__{TEMPLATE_NAME}
+
+        filename = f'{event['id']}__{basename(template)}'
         output = join(output_dir, filename)
 
         print('')
@@ -88,17 +73,10 @@ def build_templates_list(input_file, verbose=True):
     #
     # read user-supplied templates if given
     #
-    try:
-        user_templates = read_yaml(input_file)['mtuq_automater']['templates']
-    except:
-       user_templates = None
+    return [join(pkg_dir(), 'templates', 'models', 'ak135F', 'ak135F_sw.py')]
 
-    if user_templates:
-        return user_templates
 
-    else:
-        # eventually, we will add various site and region schemes
-        raise NotImplementedError
+    # eventually, we will add various site and region schemes
 
 
 def _overwrite(filename, paths, event):
