@@ -3,8 +3,8 @@
 
 import sys
 
-from mtuq_automater.parsers import event_parser as main
-
+from mtuq_automater.parsers import event_namer, config_parser
+from mtuq_automater.yaml import write_yaml
 
 
 
@@ -50,20 +50,27 @@ if __name__=='__main__':
 
     if len(args) == 1:
         # parse event ID from local database
-        raise NotImplementedError
+        raise NotImplementedError('event ID lookup not implemented')
 
     elif len(args) == 5:
         # parse preliminary origin time and location from command line
-        datetime = args[0]
-        latitude = float(args[1])
-        longitude = float(args[2])
-        depth_in_km = float(args[3])
-        magnitude = float(args[4])
+        origin = {
+            'datetime': args[0],
+            'latitude': float(args[1]),
+            'longitude': float(args[2]),
+            'depth_in_km': float(args[3]),
+            'magnitude': float(args[4]),
+            }
 
     else:
         raise IOError('Unexpected number of input arguments')
 
 
-    main(datetime, latitude, longitude, depth_in_km, magnitude)
+    # construct event name
+    name = event_namer(**origin)
 
+    # write YAML file
+    write_yaml(name+'.yaml', config_parser(name=name, **origin))
+
+    print(name)
 

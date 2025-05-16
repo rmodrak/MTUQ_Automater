@@ -4,9 +4,37 @@ import re
 from os.path import abspath, basename, dirname, isdir, exists, join
 from shutil import copy
 
-from mtuq_automater.pysep import parse_event, parse_paths
+#from mtuq_automater.pysep import parse_event, parse_paths
 from mtuq_automater.utils import is_url, url_copy
 from mtuq_automater.yaml import read_yaml
+
+
+def user_bool(prompt, default=None):
+    """ Prompts user for yes or no answer
+    """
+    user_string = input(prompt).lower()
+
+    if user_string == '' and default is not None:
+        return strtobool(default)
+
+    else:
+        try:
+            return strtobool(user_string)
+        except:
+            # retry
+            user_bool(prompt, default=default)
+
+
+def strtobool(val, default=0):
+    # modified from distutil.util.strtobool
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    else:
+        raise ValueError
+
 
 
 def pysep_dir():

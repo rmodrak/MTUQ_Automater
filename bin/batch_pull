@@ -2,25 +2,57 @@
 
 
 import os
-import pandas as pd
+import shutil
 import sys
-import yaml
 
 from copy import deepcopy
 from obspy import UTCDateTime
-from os.path import abspath, join
+from os.path import abspath, basename, exists, join, splitext
 
-from mtuq_automater.parsers import event_parser, event_tagger
+from mtuq_automater import user_bool, pkg_dir
+from mtuq_automater.parsers import config_parser, default_config, event_namer
+from mtuq_automater.yaml import read_yaml, write_yaml
 
-
-def read_csv(*args, **kwargs):
-    defaults = {'comment':'#', 'header':None, 'sep':r'\s+'}
-    defaults.update(**kwargs)
-    return pd.read_csv(*args, **defaults)
-
+from mtuq_automater.parsers import read_events as read_table
+from mtuq_automater.parsers import read_configs as read_lines
 
 
-verbose = 1
+
+def _check(filenames):
+    for filename in filenames:
+        if not exists(filename):
+            print(
+                '\n',
+                'File not found, falling back to default_config()',
+                '\n',
+                )
+            return [default_config()]
+        try:
+            read_yaml(filename)
+        except:
+            print(
+                '\n',
+                f'Error reading file: {filename}\n',
+                f'read_yaml() failed, falling back to default_config()',
+                '\n',
+                )
+            return [default_config()]
+
+
+def _print_header(df):
+    print(
+        'Header',
+        '\n',
+        '  ' + df.to_string(index=False).split('\n')[0],
+        '\n', 
+        )
+
+
+def _print_body(df):
+    lines = df.to_string(index=False).split('\n')[1:]
+    for _i, line in enumerate(lines):
+        print(f'Event {_i}\n  {line}\n')
+
 
 
 
@@ -28,7 +60,7 @@ if __name__=='__main__':
     """  Pulls waveforms for multiple events
 
 
-    USAGE 1:
+    USAGE
       >> batch_pull events.tsv
 
 
@@ -38,71 +70,112 @@ if __name__=='__main__':
         event2/
         ...
 
-      where each <event> directory corresponds to an entry in events.tsv
+      where each <event> corresponds to a single line in events.tsv
 
-
-    USAGE 2:
-      >> batch_pull events.tsv templates.tsv
-
-      Stores the waveforms in a directory tree
-
-	event1/
-	    pull1/
-	    pull2/
-	    ...
-	
-	event2/
-	    pull1/
-	    pull2/
-	    ...
-
-      where each <event> directory corresponds to an entry in events.tsv and 
-      each <pull> subdirectory corresponds to an entry in templates.tsv
 
     """
-
     args = sys.argv[1:]
 
     if len(args) < 1:
-        raise Exception('Two few input arguments')
-    elif len(args) > 3:
-        raise Exception('Two many input arguments')
+        raise Exception('Too few input arguments')
+    elif len(args) > 2:
+        raise Exception('Too many input arguments')
 
 
-    # parse events file
-    names=['utc_datetime_str', 'latitude', 'longitude', 'depth_in_km', 'magnitude']
-    events = read_csv(args[0], names=names)
+    #
+    # read origin times and locations
+    #
+    filename = args[0]
+
+    if not exists(filename):
+        print(f'File not found:\n  {filename}\n')
+        raise IOError
+
+    events = read_table(filename)
+
+    _print_header(events)
+    _print_body(events)
+
+    if not user_bool(f'\nContinue [Yn]? ', default='Y'):
+        print('  Quitting...\n')
+        sys.exit(-1)
+    print('\n')
 
 
-    if len(args) > 1:
-	# parse optional templates file
-        filename = args[1]
-        templates = read_csv(filename)
+    #
+    # read waveform client settings
+    #
+    if len(args) > 1 and args[1].endswith('.tsv'):
+        try:
+            templates = read_lines(args[1])
+        except:
+            print(
+                '\n',
+                'read_lines() failed, falling back to default_config()',
+                '\n',
+                )
+            templates = [default_config()]
+
+    elif len(args) > 1:
+        templates = [(args[1])]
+
     else:
-        templates = [None]
+        templates = [default_config()]
+
+    _check(templates)
 
 
-    for _i, row in events.iterrows():
+    print('Waveform client settings from:\n')
+    for config in templates:
+        print(config)
+    print()
 
-        dirname = event_tagger(*row)
-        if verbose > 0:
-            print(dirname)
+    if not user_bool(f'\nContinue [Yn]? ', default='Y'):
+        print('  Quitting...\n')
+        sys.exit(-1)
+    print('\n')
+
+
+    skipped = []
+    for _i, event in events.iterrows():
+        dirname = event_namer(**event)
+        if exists(dirname):
+            print(f'Directory exists:\n  {abspath(dirname)}')
+
+            # overwrite or skip existing directory?
+            if user_bool(f'Overwrite directory [Yn]?', default='Y'):
+                print('  Overwriting...\n')
+                shutil.rmtree(dirname)
+            else:
+                print('  Skipping...\n')
+                skipped.append(_i)
+                continue
 
         os.makedirs(dirname)
 
+
+    #
+    # pull waveforms
+    #
+    for _i, event in events.iterrows():
+        if _i in skipped:
+           continue
+
+        name = event_namer(**event)
+
         for template in templates:
+            defaults = read_yaml(template)
+            config = config_parser(*event, defaults=defaults, name=name)
 
-            # write configuration file
-            event_parser(*row, template=template, verbose=0, write_yaml=True)
+            # write YAML file
+            if len(templates) > 1:
+                filename = join(name, splitext(basename(template))[0]+'.yaml')
+            else:
+                filename = name+'.yaml'
 
-            #
-            # download waveforms
-            #
+            print(f'Writing {filename}\n')
+            write_yaml(filename, config)
 
             # FDSN pull
-            #pull_fdsn()
-
-            # database pull
-            #pull_db()
-
+            #subprocess.run('pull_fdsn -c config')
 
