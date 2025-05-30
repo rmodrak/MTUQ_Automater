@@ -11,7 +11,7 @@ from obspy import UTCDateTime
 from os.path import abspath, basename, exists, join, splitext
 
 from mtuq_automater import user_bool, pkg_dir
-from mtuq_automater.parsers import config_parser, default_config, event_namer
+from mtuq_automater.parsers import event_parser, default_config, event_namer
 from mtuq_automater.yaml import read_yaml, write_yaml
 
 from mtuq_automater.parsers import read_events as read_table
@@ -173,7 +173,7 @@ if __name__=='__main__':
 
         for template in templates:
             defaults = read_yaml(template)
-            config = config_parser(*event, defaults=defaults, name=name)
+            config = event_parser(*event, defaults=defaults, name=name)
 
             # write YAML file
             if len(templates) > 1:

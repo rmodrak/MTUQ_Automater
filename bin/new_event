@@ -3,7 +3,7 @@
 
 import sys
 
-from mtuq_automater.parsers import event_namer, config_parser
+from mtuq_automater.parsers import event_namer, event_parser
 from mtuq_automater.yaml import write_yaml
 
 
@@ -70,7 +70,7 @@ if __name__=='__main__':
     name = event_namer(**origin)
 
     # write event file
-    write_yaml(name+'.yaml', config_parser(name=name, **origin))
+    write_yaml(name+'.yaml', event_parser(name=name, **origin))
 
     print(name)
 

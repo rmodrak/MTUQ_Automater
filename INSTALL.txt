@@ -1,3 +1,4 @@
-1. install mtuq
-2. append mtuq_automater/bin to PATH
-3. append mtuq_automater/src to PYTHONPATH
+1. install mtuq (github.com/uafgeotools/mtuq)
+2. install pysep (github.com/uafgeotools/pysep)
+3. append mtuq_automater/bin to PATH
+4. append mtuq_automater/src to PYTHONPATH

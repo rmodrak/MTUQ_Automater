@@ -2,6 +2,7 @@
 import obspy
 import yaml
 
+from os.path import abspath, dirname, join
 from retry import retry
 
 
@@ -54,5 +55,53 @@ def is_url(path_or_url):
 def url_copy(url, filename):
     opener = URLopener()
     opener.retrieve(url, filename)
+
+
+
+
+def user_bool(prompt, default=None):
+    """ Prompts user for yes or no answer
+    """
+    user_string = input(prompt).lower()
+
+    if user_string == '' and default is not None:
+        return strtobool(default)
+
+    else:
+        try:
+            return strtobool(user_string)
+        except:
+            # retry
+            user_bool(prompt, default=default)
+
+
+def strtobool(val, default=0):
+    # modified from distutil.util.strtobool
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    else:
+        raise ValueError
+
+
+
+def pysep_dir():
+    try:
+        import pysep
+    except:
+        raise ImportError('PySEP import failed')
+    return  abspath(join(pysep.__path__[0], '..'))
+
+
+def pkg_dir():
+    # directory in which source code exists
+    src_dir = dirname(abspath(__file__))
+
+    # package directory
+    pkg_dir = abspath(join(src_dir, '..', '..', '..'))
+
+    return pkg_dir
 
 

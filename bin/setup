@@ -4,7 +4,7 @@ import os
 import sys
 
 from os.path import isdir, exists, splitext
-from mtuq_automater import mtuq_setup
+from mtuq_automater import setup
 
 
 
@@ -22,7 +22,7 @@ if __name__=='__main__':
     #   Suppose that we have already pulled waveforms for a given event
     #   using an event_file.  We can then generate MTUQ scripts by running
     #
-    #     >> mtuq_setup  EVENT_FILE EVENT_DIR [OUTPUT_DIR] [TEMPLATE]
+    #     >> setup  EVENT_FILE EVENT_DIR [OUTPUT_DIR] [TEMPLATE]
     #
     #  
 
@@ -67,5 +67,5 @@ if __name__=='__main__':
     assert isdir(input_dir)
     assert isdir(output_dir)
 
-    mtuq_setup(input_file, input_dir, output_dir)
+    setup(input_file, input_dir, output_dir)
 

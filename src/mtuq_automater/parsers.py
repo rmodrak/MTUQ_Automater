@@ -6,10 +6,9 @@ import sys
 from copy import deepcopy
 from os.path import join
 
-from mtuq_automater import pkg_dir
-from mtuq_automater.utils import flinn_engdahl
+from mtuq_automater.utils import AttribDict, pkg_dir, flinn_engdahl
 from mtuq_automater.utils.datetime import UTCDateTime, _super
-from mtuq_automater.yaml import read_yaml
+from mtuq_automater.utils.yaml import read_yaml
 
 
 
@@ -38,11 +37,7 @@ def default_config():
 
 
 
-#
-# for pulling waveforms (bin/pull*)
-#
-
-def config_parser(
+def event_parser(
     datetime=None,
     latitude=None,
     longitude=None,
@@ -86,7 +81,7 @@ def config_parser(
             name = namer(datetime, latitude, longitude)
             print(name)
         except:
-            raise ValueError('config_parser failed: invalid name/namer')
+            raise ValueError('event_parser failed: invalid name/namer')
 
     if verbose:
         print(f'Parsing event: {name}')
@@ -113,9 +108,53 @@ def config_parser(
     return event
 
 
-#
-# for generating scripts (bin/setup*)
-#
+def pysep_parser(pysep_dict):
+    event = AttribDict()
+
+    if 'event_latitude' not in pysep_dict:
+        raise ValueError('Missing from PySEP file: event_latitude')
+
+    event.latitude = pysep_dict['event_latitude']
+
+
+    if 'event_longitude' not in pysep_dict:
+        raise ValueError('Missing from PySEP file: event_longitude')
+
+    event.longitude = pysep_dict['event_longitude']
+
+    if 'event_depth_km' not in pysep_dict:
+        raise ValueError('Missing from PySEP file: event_depth_km')
+
+    event.depth_in_m = 1000.*pysep_dict['event_depth_km']
+
+
+    if 'origin_time' not in pysep_dict:
+        raise ValueError('Missing from PySEP file: origin_time')
+
+    print(pysep_dict['origin_time'])
+    try:
+        origin_time = UTCDateTime(pysep_dict['origin_time'])
+    except:
+        print('Badly formatted origin_time in PySEP file')
+        raise Exception()
+
+    event.origin_time = origin_time
+    event.origin_time_str = _formatted(origin_time)
+
+
+    if 'event_magnitude' in pysep_dict:
+        event.magnitude = pysep_dict['event_magnitude']
+    else:
+        print('Missing from PySEP file: event_magnitude')
+        event.magnitude = None
+
+    if 'event_tag' in pysep_dict:
+        event.id = pysep_dict['event_tag']
+    else:
+        event.id = _event_id(origin_time, event.latitude, event.longitude)
+
+    return event
+
 
 
 #
@@ -244,5 +283,21 @@ def read_configs(filename, **kwargs):
     df = pd.read_table(filename, names=['path'], **defaults)
     return df.iloc[:,0]
 
+
+
+def _abspath(base, *args):
+    return join(abspath(base), *args)
+
+
+def _formatted(datetime):
+    yyyymmdd = '%04d-%02d-%02d' % (datetime.year, datetime.month, datetime.day)
+    hhmmss = '%02d:%02d:%02d' % (datetime.hour, datetime.minute, datetime.second)
+    return f'{yyyymmdd}T{hhmmss}Z'
+
+
+def _event_id(datetime):
+    yyyymmdd = '%04d-%02d-%02d' % (datetime.year, datetime.month, datetime.day)
+    hhmmss = '%02d-%02d-%02d' % (datetime.hour, datetime.minute, datetime.second)
+    return f'{yyyymmdd}T{hhmmss}-REGION'
 
 

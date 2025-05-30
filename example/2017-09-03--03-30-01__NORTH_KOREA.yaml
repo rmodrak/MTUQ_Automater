@@ -13,7 +13,7 @@ event_latitude: 41.3
 event_longitude: 129.078
 event_depth_km: 1.0
 event_magnitude: 5.42
-networks: 'IU,JP'
+networks: IU,JP
 stations: '*'
 channels: BH?,HH?,LH?
 locations: '*'
