@@ -9,20 +9,22 @@ from mtuq_automater.yaml import write_yaml
 
 
 if __name__=='__main__':
-    """  Creates an YAML file with preliminary event information
+    """ Creates an event file from origin time and location or other information
+      passed over the command line
 
-      Once created, the resulting YAML files can then be passed to other
-      utilities to download waveforms for the given event or to generate
-      event-specific scripts
+      The resulting event file can then be used to download waveforms 
 
-      Currently, the YAML file uses a schema based on
-          github.com/adjtomo/pysep
+         >> pull <event_file>
+
+      or to setup an inversion
+ 
+         >> setup <event_file>
 
 
     USAGE
       >> new_event <UTC_DATE_TIME> <LAT>  <LON>  <DEPTH_IN_KM>  <MAGNITUDE>
 
-      >> new_event <EVENT_ID>
+      >> new_event <DATABASE_ID>
     
     
     EXAMPLES
@@ -37,12 +39,11 @@ if __name__=='__main__':
 
 
     WARNING
-        The script itself and details of the resulting YAML files are still
-        very much a work in progress
+        The details of the script itself and of the resulting output file are 
+        still a work in progress
 
-        In particular, details of the key/value schema, including the names of
-        keys and formatting of values, are under development and likely to
-        change
+        In particular, the key/value schema, including the names of keys and
+        formatting of values, may change without notice
 
     """
     
@@ -50,10 +51,9 @@ if __name__=='__main__':
 
     if len(args) == 1:
         # parse event ID from local database
-        raise NotImplementedError('event ID lookup not implemented')
+        raise Exception('event ID lookup not yet implemented')
 
     elif len(args) == 5:
-        # parse preliminary origin time and location from command line
         origin = {
             'datetime': args[0],
             'latitude': float(args[1]),
@@ -63,13 +63,13 @@ if __name__=='__main__':
             }
 
     else:
-        raise IOError('Unexpected number of input arguments')
+        raise Exception('unexpected number of input arguments')
 
 
     # construct event name
     name = event_namer(**origin)
 
-    # write YAML file
+    # write event file
     write_yaml(name+'.yaml', config_parser(name=name, **origin))
 
     print(name)

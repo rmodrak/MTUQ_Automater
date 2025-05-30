@@ -3,6 +3,7 @@
 
 import os
 import shutil
+import subprocess
 import sys
 
 from copy import deepcopy
@@ -26,7 +27,7 @@ def _check(filenames):
                 'File not found, falling back to default_config()',
                 '\n',
                 )
-            return [default_config()]
+            _replace(filenames, default_config())
         try:
             read_yaml(filename)
         except:
@@ -36,7 +37,12 @@ def _check(filenames):
                 f'read_yaml() failed, falling back to default_config()',
                 '\n',
                 )
-            return [default_config()]
+            _replace(filenames, default_config())
+
+
+def _replace(container, value):
+     container[0] = value
+     del container[1:]
 
 
 def _print_header(df):
@@ -70,7 +76,9 @@ if __name__=='__main__':
         event2/
         ...
 
-      where each <event> corresponds to a single line in events.tsv
+      where each <event> corresponds to a single line in events.tsv of the form
+
+      >> head -n 1 events.tsv
 
 
     """
@@ -105,7 +113,7 @@ if __name__=='__main__':
     #
     # read waveform client settings
     #
-    if len(args) > 1 and args[1].endswith('.tsv'):
+    if len(args) > 1 and args[1].endswith(('.tsv','.templates')):
         try:
             templates = read_lines(args[1])
         except:
@@ -151,7 +159,7 @@ if __name__=='__main__':
                 skipped.append(_i)
                 continue
 
-        os.makedirs(dirname)
+        #os.makedirs(dirname)
 
 
     #
@@ -173,9 +181,11 @@ if __name__=='__main__':
             else:
                 filename = name+'.yaml'
 
-            print(f'Writing {filename}\n')
+            print(f'Writing {filename}')
             write_yaml(filename, config)
 
-            # FDSN pull
-            #subprocess.run('pull_fdsn -c config')
+            print(f'Downloading waveforms')
+            subprocess.run(f'pull_fdsn {filename}', shell=True)
+
+        print()
 

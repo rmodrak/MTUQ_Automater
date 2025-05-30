@@ -19,13 +19,11 @@ if __name__=='__main__':
 
     #
     # USAGE
-    #   Suppose that we have already pulled waveforms for a given event, but 
-    #   have yet to run MTUQ.  We can then generate MTUQ scripts by running
+    #   Suppose that we have already pulled waveforms for a given event
+    #   using an event_file.  We can then generate MTUQ scripts by running
     #
-    #     >> mtuq_setup  EVENT_FILE EVENT_DIR [OUTPUT_DIR] [SCRIPT_TEMPLATE]
+    #     >> mtuq_setup  EVENT_FILE EVENT_DIR [OUTPUT_DIR] [TEMPLATE]
     #
-    #  where EVENT_FILE is the YAML file used to pull waveform and
-    #  EVENT_DIR is the directory in which waveforms were pulled
     #  
 
     #
@@ -35,10 +33,11 @@ if __name__=='__main__':
     #  
     #    - proximity of the event to known sites of interest
     #      (see templates/sites)
+    #
     #    - Flinn-Engdahl regionalization (see templates/flinn_engdahl)
     #
-    #   If the event occurs away from any currently implemented sites or regions,
-    #   the script generator falls back to the 1D reference model ak135f
+    #    - If the event occurs away from any currently implemented sites or 
+    #      regions, the script generator falls back to a 1D reference model
     #
 
     args = sys.argv[1:]

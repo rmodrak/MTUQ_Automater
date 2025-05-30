@@ -9,11 +9,7 @@ from os.path import join
 from mtuq_automater import pkg_dir
 from mtuq_automater.utils import flinn_engdahl
 from mtuq_automater.utils.datetime import UTCDateTime, _super
-
-
-from mtuq_automater.yaml import read_yaml as yaml_reader
-from mtuq_automater.yaml import write_yaml as yaml_writer
-
+from mtuq_automater.yaml import read_yaml
 
 
 
@@ -54,7 +50,7 @@ def config_parser(
     magnitude=None, 
     name='',
     namer=event_namer,
-    defaults={},
+    defaults=None,
     verbose=0,
     ):
 
@@ -95,7 +91,9 @@ def config_parser(
     if verbose:
         print(f'Parsing event: {name}')
 
-    # update key,value pairs
+
+    if defaults is None:
+        defaults = read_yaml(default_config())
     event = deepcopy(defaults)
 
     for key, val in [
