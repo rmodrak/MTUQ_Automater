@@ -203,14 +203,14 @@ def check_header(names):
 
 
 def read_events(filename, names=None, **kwargs):
-    """ Reads origin times and locations from text file
+    """ Reads origin times and locations from "events.ts"v file
     """
     defaults = {'comment':'#', 'sep':r'\s+'}
     defaults.update(**kwargs)
 
 
-    # ignore pandas header keyword argument (too complex)
     if 'header' in defaults:
+        # ignore pandas header keyword argument (too complex)
         print(
            '\n',
            'Ignoring `header` keyword argument'
@@ -218,8 +218,6 @@ def read_events(filename, names=None, **kwargs):
            )
         defaults.pop('header')
 
-
-    # use simple header parsing instead
     if names is None:
        names = parse_header(filename)
 

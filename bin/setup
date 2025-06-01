@@ -4,7 +4,7 @@ import os
 import sys
 
 from os.path import isdir, exists, splitext
-from mtuq_automater import setup
+from mtuq_automater import script_generator
 
 
 
@@ -67,5 +67,5 @@ if __name__=='__main__':
     assert isdir(input_dir)
     assert isdir(output_dir)
 
-    setup(input_file, input_dir, output_dir)
+    script_generator(input_file, input_dir, output_dir)
 
