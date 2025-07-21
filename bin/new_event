@@ -1,41 +1,37 @@
 #!/usr/bin/env python
 
-
+import os
 import sys
 
 from mtuq_automater.parsers import event_namer, event_parser
-from mtuq_automater.yaml import write_yaml
+from mtuq_automater.utils import bash_wrapper
+from mtuq_automater.utils.yaml import write_yaml
+from os.path import exists
 
 
 
 if __name__=='__main__':
-    """ Creates an event file from origin time and location or other information
-      passed over the command line
+    """ Accepts an origin time and location passed over the command line
 
-      The resulting event file can then be used to download waveforms 
+        >> new_event <UTC_DATE_TIME> <LAT>  <LON>  <DEPTH_IN_KM>  <MAGNITUDE>
 
-         >> pull <event_file>
+    Or if the event already exists in a local database, it may be possible to
+    simply pass an event ID:
 
-      or to setup an inversion
- 
-         >> setup <event_file>
+        >> new_event <EVENTID>
+
+    The result is a customizable event file and a set of scripts that can used
+    to set up and run a moment tensor analysis.
 
 
-    USAGE
-      >> new_event <UTC_DATE_TIME> <LAT>  <LON>  <DEPTH_IN_KM>  <MAGNITUDE>
-
-      >> new_event <DATABASE_ID>
-    
-    
     EXAMPLES
       >> new_event  2017-09-03T03:30:01.000  41.300  129.078  1.  5.42
       >> new_event  2017-09-03T03:30:01  41.300  129.078  1.  5.42
       >> new_event  2017-09-03_03:30:01  41.300  129.078  1.  5.42
       >> new_event  2017,09,03,03,30,01  41.300  129.078  1.  5.42
       >> new_event  2017-09-03--03-30-01  41.300  129.078  1.  5.42
-
-      >> new_event 20170903033001
-      >> new_event c7a0c09f172abd32e
+      >> new_event  20170903033001
+      >> new_event  c7a0c09f172abd32e
 
 
     WARNING
@@ -66,11 +62,30 @@ if __name__=='__main__':
         raise Exception('unexpected number of input arguments')
 
 
-    # construct event name
-    name = event_namer(**origin)
+    event_name = event_namer(**origin)
+    event_dict = event_parser(name=event_name, **origin)
+    event_dir  = event_name
+
+    config_fdsn = 'config_fdsn.yaml'
+    config_db   = 'config_db.yaml'
 
     # write event file
-    write_yaml(name+'.yaml', event_parser(name=name, **origin))
+    os.mkdir(event_dir)
+    os.chdir(event_dir)
 
-    print(name)
+    if exists(event_file):
+        print(f'File exists: {event_file}\nAborting...')
+        sys.exit(-1)
+
+    write_yaml(event_file, event_dict)
+
+    # create scripts
+    filename=f"01_pull_waveforms"
+    cmd="pull_waveforms_fdsn"
+    bash_wrapper(filename, cmd, event_file)
+
+    filename=f"02_setup_mtuq"
+    cmd="setup"
+    bash_wrapper(filename, cmd, event_file)
+
 

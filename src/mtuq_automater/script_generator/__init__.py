@@ -5,7 +5,7 @@ from os.path import abspath, basename, dirname, isdir, exists, join
 from shutil import copy
 
 from mtuq_automater.parsers import event_parser, pysep_parser
-from mtuq_automater.template_selection import build_templates_list
+from mtuq_automater.template_selector import build_templates_list
 from mtuq_automater.utils import AttribDict, is_url, url_copy, pkg_dir
 from mtuq_automater.utils.yaml import read_yaml
 
@@ -82,7 +82,7 @@ def main(input_file, input_dir, output_dir, resub=_resub):
     for template in templates:
         # output filename usually reduces to 
         #{DATETIME}__{FLINN_ENGDAHL_REGION}__{TEMPLATE_NAME}
-        filename = f'{event['id']}__{basename(template)}'
+        filename = f"{event['id']}__{basename(template)}"
         fullname = join(output_dir, filename)
 
         print(f'\ntemplate:\n  {template}')

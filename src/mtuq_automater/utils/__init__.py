@@ -1,4 +1,7 @@
 
+import os
+import stat
+
 import obspy
 import yaml
 
@@ -103,5 +106,14 @@ def pkg_dir():
     pkg_dir = abspath(join(src_dir, '..', '..', '..'))
 
     return pkg_dir
+
+
+def bash_wrapper(filename, cmd, *args):
+    with open(filename, 'w') as file:
+        file.write(f'#/bin/bash\n\n{cmd} {' '.join(args)}')
+
+    # chmod +x 
+    st = os.stat(filename)
+    os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
 
