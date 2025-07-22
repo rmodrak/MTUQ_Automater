@@ -7,16 +7,19 @@ taup_model: ak135
 use_mass_download: false
 event_selection: default
 origin_time: '2017-09-03T03:30:01.000'
-seconds_before_ref: 100
-seconds_after_ref: 1000
+seconds_before_event: 20
+seconds_after_event: 20
 event_latitude: 41.3
 event_longitude: 129.078
 event_depth_km: 1.0
 event_magnitude: 5.42
-networks: IU,JP
+networks: 'G,HK,IC,II,IU,JP,KG,KS,TW'
 stations: '*'
-channels: BH?,HH?,LH?
+channels: '*'
 locations: '*'
+reference_time: null
+seconds_before_ref: 100
+seconds_after_ref: 1000
 phase_list:
 - ttall
 mindistance_km: 0
@@ -31,7 +34,7 @@ demean: true
 detrend: true
 taper_percentage: 0.0
 rotate: null
-remove_response: false
+remove_response: true
 output_unit: VEL
 water_level: 60
 pre_filt: default
@@ -42,4 +45,4 @@ remove_insufficient_length: true
 remove_masked_data: true
 fill_data_gaps: false
 gap_fraction: 1.0
-write_files: weights_dist,sac_rtz
+write_files: 'weights_dist,sac_rtz,sac_raw'

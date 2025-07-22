@@ -25,8 +25,8 @@ def _resub(lines, event):
         ['\'latitude\':',   event.latitude,        '%f,'],
         ['\'longitude\':',  event.longitude,       '%f,'],
         ['\'depth_in_m\':', event.depth_in_m,      '%f,'],
-        ['magnitude=',      event.magnitude,       '%f'],
-        ['\'time\':',       event.origin_time_str, 'UTCDateTime(\'%s\')'],
+        ['magnitude=',      event.magnitude,       '%f,'],
+        ['\'time\':',       event.origin_time_str, 'UTCDateTime(\'%s\'),'],
         #['magnitudes=',    event.magnitude']],
         ]
 
@@ -63,7 +63,7 @@ def main(input_file, input_dir, output_dir, resub=_resub):
 
     # event paths relative to input_dir
     event.update({
-        'path_data': join(input_dir, 'SAC/*sac'),
+        'path_data': join(input_dir, 'SAC/*.?[HL]?.sac'),
         'path_weights': join(input_dir, 'weights.dat'),
         })
 
@@ -81,8 +81,8 @@ def main(input_file, input_dir, output_dir, resub=_resub):
 
     for template in templates:
         # output filename usually reduces to 
-        #{DATETIME}__{FLINN_ENGDAHL_REGION}__{TEMPLATE_NAME}
-        filename = f"{event['id']}__{basename(template)}"
+        #run__{TEMPLATE_NAME}
+        filename = f"run__{basename(template)}"
         fullname = join(output_dir, filename)
 
         print(f'\ntemplate:\n  {template}')

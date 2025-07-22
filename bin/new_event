@@ -73,19 +73,24 @@ if __name__=='__main__':
     os.mkdir(event_dir)
     os.chdir(event_dir)
 
-    if exists(event_file):
-        print(f'File exists: {event_file}\nAborting...')
+    if exists(config_fdsn):
+        print(f'File exists: {config_fdsn}\nAborting...')
         sys.exit(-1)
 
-    write_yaml(event_file, event_dict)
+    write_yaml(config_fdsn, event_dict)
 
     # create scripts
-    filename=f"01_pull_waveforms"
-    cmd="pull_waveforms_fdsn"
-    bash_wrapper(filename, cmd, event_file)
+    filename=f"01_pull"
+    cmd="pull_fdsn"
+    bash_wrapper(filename, cmd, config_fdsn)
 
-    filename=f"02_setup_mtuq"
+    filename=f"02_setup"
     cmd="setup"
-    bash_wrapper(filename, cmd, event_file)
+    bash_wrapper(filename, cmd, config_fdsn, 'waveforms_fdsn')
+
+    filename=f"03_run"
+    cmd="run__"
+    bash_wrapper(filename, cmd, 'run__*')
+
 
 

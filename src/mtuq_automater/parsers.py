@@ -33,7 +33,7 @@ def default_header():
     return ('datetime','latitude','longitude','depth_in_km','magnitude')
 
 def default_config():
-    return join(pkg_dir(), 'templates', 'event.yaml')
+    return join(pkg_dir(), 'templates', 'config_fdsn.yaml')
 
 
 
