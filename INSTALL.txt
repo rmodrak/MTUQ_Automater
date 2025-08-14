@@ -1,17 +1,20 @@
 
-To install MTUQ_Automater:
+To install MTUQ_Automater, first download the source code
+
+  >> git clone https://github.com/rmodrak/MTUQ_Automater
+  >> cd MTUQ_Automater
+
+
+Then create a conda environment:
+
   >> conda env create --name mta --file env.yaml
 
 
-Alternative method 1:
-1. install mtuq (github.com/uafgeotools/mtuq)
-2. install pysep (github.com/uafgeotools/pysep)
-3. add MTUQ_Automater/bin to PATH
-4. add MTUQ_Automater/src to PYTHONPATH
+Finally, add bin/ to PATH
 
+  >> export PATH=$PATH:$PWD/bin 
 
-Alternative method 2:
-1. install mtuq (github.com/uafgeotools/mtuq)
-2. install pysep (github.com/uafgeotools/pysep)
-3. source MTUQ_Automater `activate.bash`
+and add src/ to PYTHONPATH
+
+  >> export PYTHONPATH=$PYTHONPATH:$PWD/src
 

@@ -1,4 +1,32 @@
 
-new_event  2017-09-03--03-30-01  41.300  129.078  1.  5.42
-#new_event  2025-07-09T18:39:50.  43.008  88.193  10.  4.9
+
+WHAT THE EXAMPLE DOES
+
+   Downloads waveforms and performs moment tensor analysis for the North Korean 
+   nuclear test that occurred on 2017/09/03 at 03:30:01 UTC.
+
+
+TO RUN THE EXAMPLE
+
+  1. First install MTUQ_Automater following INSTALL.txt.
+
+
+  2. Pass the event origin time, latitude, longitude, depth, and magnitude to
+     MTUQ_Automater as follows:
+
+     >> new_event  2017-09-03-03-30-01  41.300  129.078  1.  5.42
+
+     The result will be a new directory with a set of customizable scripts for 
+     pulling waveforms and setting up and running a moment tensor analysis.
+
+
+  3. Simply navigate to the new directory
+
+     >> cd 2017-09-03--03-30-01__NORTH_KOREA/
+
+     and then invoke the scripts in order:
+
+     >> bash ./01_pull
+     >> bash ./02_setup
+     >> bash ./03_run
 
